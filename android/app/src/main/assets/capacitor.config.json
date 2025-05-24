@@ -1,0 +1,10 @@
+{
+	"appId": "com.medicationreminder.app",
+	"appName": "medicationreminder",
+	"webDir": "dist",
+	"plugins": {
+		"SplashScreen": {
+			"launchAutoHide": false
+		}
+	}
+}
