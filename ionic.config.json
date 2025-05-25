@@ -1,0 +1,7 @@
+{
+  "name": "medicationreminder",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
