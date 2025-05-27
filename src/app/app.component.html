@@ -1,3 +1,12 @@
-<ion-app>
-  <ion-router-outlet></ion-router-outlet>
-</ion-app>
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="home" [routerLink]="['/home']" [routerLinkActive]="['active']">
+      <lucide-icon [img]="bellIcon"></lucide-icon>
+      Mis notificaciones
+    </ion-tab-button>
+    <ion-tab-button tab="add-notification" [routerLink]="['/add-notification']" [routerLinkActive]="['active']">
+      <lucide-icon [img]="plusIcon"></lucide-icon>
+      Agregar notificación
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

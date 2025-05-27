@@ -1,2 +1,52 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+/* Colores Primarios */
+/* Azul confianza principal */
+$primary-blue: #2563eb;
+/* Azul más claro */
+$primary-blue-light: #3b82f6;
+/* Azul más oscuro */
+$primary-blue-dark: #1d4ed8;
+
+/* Colores Secundarios */
+$secondary-teal: #06b6d4;
+/* Verde azulado calmante */
+$secondary-mint: #10b981;
+/* Verde menta suave */
+$accent-purple: #8b5cf6;
+/* Púrpura para destacar */
+
+/* Colores de Estado */
+$success-green: #22c55e;
+/* Verde éxito */
+$warning-amber: #f59e0b;
+/* Ámbar advertencia */
+$danger-red: #ef4444;
+/* Rojo peligro/urgente */
+$info-cyan: #06b6d4;
+/* Cian información */
+
+/* Colores Neutros */
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$gray-900: #0f172a;
+
+/* Colores de Fondo */
+$bg-primary: #ffffff;
+$bg-secondary: #f8fafc;
+$bg-accent: #f0f9ff;
+$bg-dark: #1e293b;
+
+/* Colores de Texto */
+$text-primary: #0f172a;
+$text-secondary: #475569;
+$text-muted: #64748b;
+$text-white: #ffffff;
