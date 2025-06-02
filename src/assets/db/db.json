@@ -1,0 +1,61 @@
+{
+    "database": "reminders.db",
+    "version": 1,
+    "encrypted": false,
+    "mode": "full",
+    "tables": [
+        {
+            "name": "remindersList",
+            "schema": [
+                {
+                    "column": "name",
+                    "value": "TEXT NOT NULL PRIMARY KEY"
+                },
+                {
+                    "column": "description",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "date",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "time",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "measure",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "reminderConfig",
+                    "value": "TEXT NOT NULL"    
+                },
+                {
+                    "column": "quantity",
+                    "value": "TEXT NOT NULL"
+                },  
+                {
+                    "column": "icon",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "reminderBy",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "createdAt",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "updatedAt",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "isActive",
+                    "value": "INTEGER NOT NULL"
+                }
+            ]
+        }
+    ]
+}

@@ -1,3 +1,5 @@
+@use "../../theme/variables.scss" as *;
+
 #container {
   text-align: center;
 
@@ -24,4 +26,86 @@
 
 #container a {
   text-decoration: none;
+}
+
+.no-reminders-container{
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.no-reminders-image{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  img{
+    border-radius: 10px;
+  }
+}
+
+.no-reminders-title{
+  h4{
+    font-size: 20px;
+    font-weight: bold;
+    color: $primary-blue-dark;
+  }
+}
+
+.no-reminders-description{
+  p{
+    font-size: 16px;
+    color: $primary-blue-dark;
+  }
+}
+
+.card-title-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reminder-text-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reminder-card {
+  margin-bottom: 10px;
+  background-color: $bg-dark;
+  color: $text-white;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: $text-white;
+}
+
+.card-description {
+  font-size: 0.8rem;
+  color: $text-white;
+}
+
+.card-content {
+  font-size: 0.8rem;
+  color: $text-white;
+}
+
+.card-quantity {
+  h6 {
+    font-size: 0.8rem;
+    color: $text-white;
+    margin: 0;
+    padding: 0;
+  }
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $accent-purple;
+  border-radius: 10px;
+  padding-inline: 5px;
+  min-width: 65px;
+  text-align: center;
+  height: 2rem;
 }

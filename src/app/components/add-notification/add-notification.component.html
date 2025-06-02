@@ -1,3 +1,97 @@
-<p>
-  add-notification works!
-</p>
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-card-header>
+        <ion-title>Agregar nuevo recordatorio</ion-title>
+      </ion-card-header>
+    </ion-toolbar>
+  </ion-header>
+ <div>
+
+   <div class="container-image">
+     <img src="assets/images/midireminder.png" alt="logo" height="200px"/>
+    </div>
+  </div>
+    <ion-card-content [formGroup]="addNotificationForm">
+      <ion-item>
+        <ion-input type="text" labelPlacement="floating" formControlName="name">
+          <ion-label slot="label">Nombre</ion-label>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input
+          type="text"
+          labelPlacement="floating"
+          formControlName="description"
+        >
+          <ion-label slot="label">Descripción</ion-label>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-select
+          labelPlacement="floating"
+          formControlName="reminderBy"
+          (ionChange)="changeReminderBy()"
+        >
+          @for (reminder of reminders; track $index) {
+          <ion-select-option [value]="reminder.value">{{
+            reminder.name
+          }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      @if (showDayOfWeek) {
+        <ion-item >
+          <ion-radio-group formControlName="dayOfWeek" multiple="false">
+            @for (day of daysOfWeek; track $index) {
+            <ion-radio aria-label="Custom checkbox" [value]="day.value">{{ day.name }}</ion-radio>
+            }
+          </ion-radio-group>
+        </ion-item>
+        }
+      <ion-item>
+        <ion-datetime
+          [presentation]="presentation"
+          formControlName="date"
+          [preferWheel]="true"
+          (ionChange)="changeDate($event)"
+        ></ion-datetime>
+      </ion-item>
+      
+
+      <ion-item>
+        <ion-input
+          type="number"
+          labelPlacement="floating"
+          formControlName="quantity"
+        >
+          <ion-label slot="label">Cantidad</ion-label>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-select labelPlacement="floating" formControlName="measure">
+          @for (measure of measures; track $index) {
+          <ion-select-option [value]="measure">{{
+            measure.name
+          }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+      <ion-button expand="full" (click)="onSubmit()" [disabled]="!isValidForm()">Guardar</ion-button>
+    </ion-card-content>
+@if(isSubmitting){
+  <ion-spinner name="crescent"
+  message="'Guardando...'"
+  [duration]="3000"
+  [color]="toastColor"
+  position="top"
+  (didDismiss)="showToast = false" />
+}
+@if(showToast){
+  <ion-toast [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    [color]="toastColor"
+  (didDismiss)="showToast = false" />
+}
+</ion-content>

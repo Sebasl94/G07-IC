@@ -1,0 +1,85 @@
+@use "../../../theme/variables.scss" as *;
+ion-radio {
+  --border-radius: 4px;
+  --inner-border-radius: 4px;
+
+  --color: #ddd;
+  --color-checked: $primary-blue;
+}
+
+.container-image{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  img{
+    border-radius: 10px;
+  }
+}
+ion-card-content{
+  padding-top: 0px;
+}
+
+ion-radio::part(container) {
+  width: 30px;
+  height: 30px;
+
+  border-radius: 8px;
+  border: 2px solid #ddd;
+}
+
+ion-radio::part(mark) {
+  background: none;
+  transition: none;
+  transform: none;
+  border-radius: 0;
+}
+
+ion-radio.radio-checked::part(container) {
+  background: $primary-blue;
+  border-color: transparent;
+}
+
+ion-radio.radio-checked::part(mark) {
+  width: 6px;
+  height: 10px;
+
+  border-width: 0px 2px 2px 0px;
+  border-style: solid;
+  border-color: #fff;
+
+  transform: rotate(45deg);
+}
+
+ion-datetime{
+  height: 150px;
+  border-radius: 10px;
+  background-color: $bg-dark;
+  box-shadow: none;
+  color: $text-white;
+}
+
+
+ion-datetime.time-button.active{
+  color: $primary-blue !important;
+  >*{
+    color: $primary-blue !important;
+  }
+}
+
+.ion-color.option-active{
+  color: $primary-blue !important;
+}
+::slotted(ion-picker-column-option){
+  color: $accent-purple !important;
+}
+
+.picker-button-cancel{
+  color: $accent-purple !important;
+}
+ion-picker{
+  height: 80px !important;
+}
+ion-picker-column-option{
+  --color: var($accent-purple) !important;
+}
