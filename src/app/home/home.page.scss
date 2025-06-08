@@ -28,32 +28,47 @@
   text-decoration: none;
 }
 
-.no-reminders-container{
+.no-reminders-container {
   margin: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.no-reminders-image{
+.no-reminders-image {
   display: flex;
   justify-content: center;
   align-items: center;
-  img{
+  img {
     border-radius: 10px;
   }
 }
 
-.no-reminders-title{
-  h4{
+.no-reminders-title {
+  h4 {
     font-size: 20px;
     font-weight: bold;
     color: $primary-blue-dark;
   }
 }
 
-.no-reminders-description{
-  p{
+.card-wrapper {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: space-between;
+  .card-wrapper-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .card-wrapper-content {
+    width: 95%;
+  }
+}
+.no-reminders-description {
+  p {
     font-size: 16px;
     color: $primary-blue-dark;
   }
@@ -67,6 +82,7 @@
 .reminder-text-wrapper {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .reminder-card {
@@ -109,3 +125,7 @@
   text-align: center;
   height: 2rem;
 }
+
+.btn-danger {
+  min-height: 2.5rem !important;
+  }

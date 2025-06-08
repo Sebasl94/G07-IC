@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { DatabaseService } from './services/database.service';
+import { NotificationService } from './services/notification/notification.service';
 import {  IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 import {  BellIcon, LucideAngularModule,  PlusIcon } from 'lucide-angular';
 import { Router, RouterModule } from '@angular/router';
@@ -18,7 +19,8 @@ export class AppComponent implements OnInit {
   constructor(
     readonly platform: Platform,
     readonly databaseService: DatabaseService,
-    readonly router: Router
+    readonly router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -27,6 +29,7 @@ export class AppComponent implements OnInit {
 
   private async initializeApp() {
     try {
+     
       await this.platform.ready();
       console.log('Platform ready');
       
@@ -45,10 +48,20 @@ export class AppComponent implements OnInit {
         // La app continúa funcionando gracias al fallback del servicio
       }
 
+      // Verificar y reprogramar notificaciones vencidas
+      setTimeout(async () => {
+        try {
+          await this.notificationService.checkAndRescheduleExpiredNotifications();
+          console.log('✅ Notification check completed');
+        } catch (error) {
+          console.error('❌ Error checking notifications:', error);
+        }
+      }, 2000); // Esperar 2 segundos para que todo esté inicializado
+
       // Log del estado final
       const dbStatus = this.databaseService.isDatabaseReady();
       console.log('Final database status:', JSON.stringify(dbStatus));
-
+      await this.notificationService.removeAllNotifications();
     } catch (error) {
       console.error('App initialization error:', error);
       // La app debe continuar funcionando incluso si hay errores

@@ -30,6 +30,7 @@ import { dictOfTimes } from "../../const/dictOfTimes";
 import { DatabaseService } from "../../services/database.service";
 import { Reminder } from "../../interfaces/reminder";
 import { Router } from "@angular/router";
+import { NotificationService } from "../../services/notification/notification.service";
 
 @Component({
   selector: "app-add-notification",
@@ -83,6 +84,8 @@ export class AddNotificationComponent implements OnInit {
   daysOfWeek = daysOfWeek;
   showDay: boolean = false;
   showDayOfWeek: boolean = false;
+  isQuantityGreaterThanOne: boolean = false;
+  isNumberFrecuencyGreaterThanOne: boolean = false;
   fb = inject(FormBuilder);
   presentation = "date";
 
@@ -96,10 +99,12 @@ export class AddNotificationComponent implements OnInit {
 
   constructor(
     readonly cdr: ChangeDetectorRef,
-    readonly databaseService: DatabaseService
+    readonly databaseService: DatabaseService,
+    private notificationService: NotificationService
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.changeReminderBy();
     await this.databaseService.initializeDatabase();
     await this.databaseService.waitForDatabase();
     this.hideBackgroundDatePicker();
@@ -128,6 +133,8 @@ export class AddNotificationComponent implements OnInit {
     name: this.fb.control("", [Validators.required]),
     description: this.fb.control(""),
     date: this.fb.control(new Date()),
+    day: this.fb.control(1),
+    numberFrecuency: this.fb.control(1),
     dayOfWeek: this.fb.control(""),
     measure: this.fb.control(this.measures[0]),
     reminderBy: this.fb.control("day"),
@@ -140,6 +147,8 @@ export class AddNotificationComponent implements OnInit {
 
     if (reminderBy === "hour" || reminderBy === "week") {
       this.presentation = "time";
+    } else if (reminderBy === "day") {
+      this.presentation = "time";
     } else {
       this.presentation = "date-time";
     }
@@ -149,6 +158,7 @@ export class AddNotificationComponent implements OnInit {
     } else {
       this.showDayOfWeek = false;
     }
+    this.hideBackgroundDatePicker();
   }
 
   changeDate(event: any) {
@@ -162,13 +172,13 @@ export class AddNotificationComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.isValidForm()) {
-      this.showToastMessage(
-        "Por favor completa todos los campos requeridos",
-        "warning"
-      );
-      return;
-    }
+    // if (!this.isValidForm()) {
+    //   this.showToastMessage(
+    //     "Por favor completa todos los campos requeridos",
+    //     "warning"
+    //   );
+    //   return;
+    // }
 
     if (!this.databaseService.isDatabaseReady()) {
       this.showToastMessage(
@@ -183,6 +193,30 @@ export class AddNotificationComponent implements OnInit {
     try {
       const formDateValue = this.addNotificationForm.get("date")?.value;
       let date = new Date(formDateValue ?? new Date());
+      const reminderBy = this.addNotificationForm.get("reminderBy")?.value ?? "";
+
+      console.log("📅 Form date value:", formDateValue);
+      console.log("📅 Parsed date:", date);
+      console.log("📅 Date hours:", date.getHours());
+      console.log("📅 Date minutes:", date.getMinutes());
+      console.log("📅 Reminder type:", reminderBy);
+
+      // Determinar el día a usar según el tipo de recordatorio
+      let dayToUse = date.getDate();
+      if (reminderBy === "month") {
+        // Para recordatorios mensuales, usar el día especificado en el formulario
+        dayToUse = this.addNotificationForm.get("day")?.value ?? date.getDate();
+      }
+
+      const reminderConfig = {
+        day: dayToUse,
+        hour: date.getHours(),
+        minute: date.getMinutes(),
+        dayOfWeek: this.addNotificationForm.get("dayOfWeek")?.value ?? 1,
+        numberFrecuency: this.addNotificationForm.get("numberFrecuency")?.value ?? 1,
+      };
+
+      console.log("📅 Reminder config:", reminderConfig);
 
       let newNotification = {
         name: this.addNotificationForm.get("name")?.value ?? "",
@@ -192,15 +226,10 @@ export class AddNotificationComponent implements OnInit {
         measure: JSON.stringify(
           this.addNotificationForm.get("measure")?.value ?? ""
         ),
-        reminderBy: this.addNotificationForm.get("reminderBy")?.value ?? "",
+        reminderBy: reminderBy,
         quantity: this.addNotificationForm.get("quantity")?.value ?? 1,
         isActive: 1, // Asegurar que esté activo
-        reminderConfig: JSON.stringify({
-          day: date.getDate(),
-          hour: date.getHours(),
-          minute: date.getMinutes(),
-          dayOfWeek: this.addNotificationForm.get("dayOfWeek")?.value,
-        }),
+        reminderConfig: JSON.stringify(reminderConfig),
       };
 
       console.log(
@@ -213,6 +242,25 @@ export class AddNotificationComponent implements OnInit {
       );
       console.log("✅ Reminder added successfully:", result);
 
+      if (result.changes && result.changes.lastId) {
+        const reminderId = result.changes.lastId;
+        const scheduleConfig = JSON.parse(newNotification.reminderConfig);
+        const measureValue = this.addNotificationForm.get("measure")?.value;
+        const measureName = measureValue ? (measureValue as any).name.toLowerCase() : 'dosis';
+        const quantity = newNotification.quantity;
+        const quantityText = quantity > 1 ? `${quantity} ${measureName}s` : `${quantity} ${measureName}`;
+
+        console.log("🔔 Scheduling notification with config:", scheduleConfig);
+
+        await this.notificationService.scheduleRecurringNotification({
+            id: reminderId,
+            title: `Recordatorio: ${newNotification.name}`,
+            body: `Es hora de tomar tu ${quantityText}. ${newNotification.description || ''}`,
+            scheduleConfig: scheduleConfig,
+            reminderBy: newNotification.reminderBy,
+        });
+      }
+
       this.showToastMessage("¡Recordatorio agregado exitosamente!", "success");
 
       // Limpiar formulario
@@ -220,6 +268,8 @@ export class AddNotificationComponent implements OnInit {
         name: "",
         description: "",
         date: new Date(),
+        day: 1,
+        numberFrecuency: 1,
         dayOfWeek: "",
         measure: this.measures[0],
         reminderBy: "day",
@@ -236,6 +286,16 @@ export class AddNotificationComponent implements OnInit {
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  isQuantityGreaterThanOneChanged() {
+    const quantity = this.addNotificationForm.get("quantity")?.value ?? 0;
+    this.isQuantityGreaterThanOne = quantity > 1;
+  }
+
+  isNumberFrecuencyGreaterThanOneChanged() {
+    const numberFrecuency = this.addNotificationForm.get("numberFrecuency")?.value ?? 0;
+    this.isNumberFrecuencyGreaterThanOne = numberFrecuency > 1;
   }
 
   private showToastMessage(message: string, color: string) {

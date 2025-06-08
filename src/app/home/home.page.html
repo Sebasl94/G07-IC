@@ -1,8 +1,13 @@
 <ion-content>
   <ion-header>
-    <ion-toolbar>
+   
       <h2>Mis recordatorios</h2>
-    </ion-toolbar>
+      <ion-button slot="end" (click)="testNotification()"
+        >Test Notif</ion-button
+      >
+      <ion-button slot="end" (click)="checkExpiredNotifications()">Check Expired</ion-button>
+      <ion-button slot="end" (click)="testRecurringNotification()">Test Recurring</ion-button>
+ 
   </ion-header>
   @if(myReminders.length === 0){
   <ng-container>
@@ -36,56 +41,66 @@
   </ng-container>
   } @for (reminder of myReminders; track reminder.id) {
   <ion-card class="reminder-card">
-    <ion-card-header>
-      <ion-card-title class="card-title-wrapper">
-        <div>
-          <h4 class="card-title">💊 - {{ reminder.name }}</h4>
-          <h5 class="card-description">{{reminder.description}}</h5>
-        </div>
-        <div class="card-quantity">
-          <h6>
-            {{reminder.quantity}} {{reminder.quantity>1 ?
-            reminder.measure.symbol+'s': reminder.measure.symbol}}
-          </h6>
-        </div>
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content class="card-content">
-      @switch(reminder.reminderBy) { @case('day') {
-      <div class="reminder-text-wrapper">
-        <div>
-          {{reminder.quantity}} {{reminder.quantity>1 ?
-          reminder.measure.symbol+'s': reminder.measure.symbol}}
-        </div>
-        <div>{{setTime(reminder)}}</div>
+    <div class="card-wrapper">
+      <div class="card-wrapper-button">
+        <!-- <ion-button >
+          <lucide-icon size="16" [img]="EditIcon"></lucide-icon>
+        </ion-button> -->
+        <ion-button
+          (click)="deleteReminder(reminder)"
+          color="danger"
+          class="btn btn-danger"
+        >
+          <lucide-icon size="14" [img]="TrashIcon"></lucide-icon>
+        </ion-button>
       </div>
-      } @case('hour') {
-      <div class="reminder-text-wrapper">
-        <div>
-          {{reminder.quantity}} {{ reminder.quantity>1 ?
-          reminder.measure.symbol+'s': reminder.measure.symbol}}
-        </div>
-        <div>{{setTime(reminder)}}</div>
-      </div>
-      } @case('week') {
-      <div class="reminder-text-wrapper">
-        <div>
-          {{reminder.quantity}} {{reminder.quantity>1 ?
-          reminder.measure.symbol+'s': reminder.measure.symbol}}
-        </div>
-        <div>{{setTime(reminder)}}</div>
-      </div>
-      } @case('month') {
-      <div class="reminder-text-wrapper">
-        <div>
-          {{reminder.quantity}} {{reminder.quantity>1 ?
-          reminder.measure.symbol+'s': reminder.measure.symbol}}
-        </div>
-        <div>{{setTime(reminder)}}</div>
-      </div>
+      <div class="card-wrapper-content">
+        <ion-card-header>
+          <ion-card-title class="card-title-wrapper">
+            <div>
+              <h4 class="card-title">💊 - {{ reminder.name }}</h4>
+              <h5 class="card-description">{{reminder.description}}</h5>
+            </div>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content class="card-content">
+          @switch(reminder.reminderBy) { @case('day') {
+          <div class="reminder-text-wrapper">
+            <div class="card-quantity">
+              {{reminder.quantity}} {{reminder.quantity>1 ?
+              reminder.measure.symbol+'s': reminder.measure.symbol}}
+            </div>
+            <div>{{setTime(reminder)}}</div>
+          </div>
+          } @case('hour') {
+          <div class="reminder-text-wrapper">
+            <div class="card-quantity">
+              {{reminder.quantity}} {{ reminder.quantity>1 ?
+              reminder.measure.symbol+'s': reminder.measure.symbol}}
+            </div>
+            <div>{{setTime(reminder)}}</div>
+          </div>
+          } @case('week') {
+          <div class="reminder-text-wrapper">
+            <div class="card-quantity">
+              {{reminder.quantity}} {{reminder.quantity>1 ?
+              reminder.measure.symbol+'s': reminder.measure.symbol}}
+            </div>
+            <div>{{setTime(reminder)}}</div>
+          </div>
+          } @case('month') {
+          <div class="reminder-text-wrapper">
+            <div class="card-quantity">
+              {{reminder.quantity}} {{reminder.quantity>1 ?
+              reminder.measure.symbol+'s': reminder.measure.symbol}}
+            </div>
+            <div>{{setTime(reminder)}}</div>
+          </div>
 
-      } }
-    </ion-card-content>
+          } }
+        </ion-card-content>
+      </div>
+    </div>
   </ion-card>
   }
 </ion-content>

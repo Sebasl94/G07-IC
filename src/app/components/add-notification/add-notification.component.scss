@@ -16,6 +16,11 @@ ion-radio {
     border-radius: 10px;
   }
 }
+.ion-item-reminder{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 ion-card-content{
   padding-top: 0px;
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { LucideAngularModule, PlusIcon } from "lucide-angular";
+import { LucideAngularModule, PlusIcon, TrashIcon, EditIcon } from "lucide-angular";
 import { measures } from "../const/measures";
 import {
   IonCard,
@@ -10,11 +10,13 @@ import {
   IonHeader,
   IonToolbar,
   IonCardHeader,
+  IonButton,
 } from "@ionic/angular/standalone";
 import { dictOfTimes } from "../const/dictOfTimes";
 import { dictOfDays } from "../const/dictOfDays";
 import { DatabaseService } from "../services/database.service";
 import { Reminder } from "../interfaces/reminder";
+import { NotificationService } from "../services/notification/notification.service";
 
 @Component({
   selector: "app-home",
@@ -31,17 +33,23 @@ import { Reminder } from "../interfaces/reminder";
     IonContent,
     IonHeader,
     IonToolbar,
+    IonButton,
   ],
 })
 export class HomePage implements OnInit {
   PlusIcon = PlusIcon;
+  TrashIcon = TrashIcon;
+  EditIcon = EditIcon;
   measures = measures;
   dictOfTimes = dictOfTimes;
   dictOfDays = dictOfDays;
   myReminders: any[] = [];
   isLoading = true;
 
-  constructor(readonly databaseService: DatabaseService) {
+  constructor(
+    readonly databaseService: DatabaseService,
+    private notificationService: NotificationService
+  ) {
     // La inicialización ya se hace en main.ts
   }
 
@@ -161,6 +169,13 @@ export class HomePage implements OnInit {
     }
   }
 
+  async deleteReminder(reminder: Reminder) {
+    if (reminder.id) {
+      await this.databaseService.deleteReminder(reminder.id);
+      await this.loadReminders();
+    }
+  }
+
   async checkDatabaseStatus() {
     const status = this.databaseService.isDatabaseReady();
     console.log("Database Status:", status);
@@ -199,5 +214,44 @@ export class HomePage implements OnInit {
     } catch (error) {
       console.error("Error adding test reminder:", error);
     }
+  }
+
+  async testNotification() {
+    const now = new Date();
+    // Schedule a notification in 5 seconds
+    const scheduledAt = new Date(now.getTime() + 5000);
+    await this.notificationService.scheduleNotification(
+      'Hola!',
+      'Esta es una notificación de prueba',
+      scheduledAt
+    );
+    
+    // También mostrar las notificaciones pendientes
+    await this.notificationService.getPendingNotifications();
+  }
+
+  async checkExpiredNotifications() {
+    console.log('🔍 Checking for expired notifications...');
+    await this.notificationService.checkAndRescheduleExpiredNotifications();
+  }
+
+  async testRecurringNotification() {
+    // Crear una notificación de prueba que se dispare en 1 minuto
+    const testConfig = {
+      id: 99999, // ID especial para pruebas
+      title: 'Prueba Recurrente',
+      body: 'Esta notificación debería reprogramarse automáticamente',
+      scheduleConfig: {
+        hour: new Date().getHours(),
+        minute: new Date().getMinutes() + 1, // 1 minuto en el futuro
+        day: new Date().getDate(),
+        dayOfWeek: new Date().getDay(),
+        numberFrecuency: 1
+      },
+      reminderBy: 'day'
+    };
+
+    await this.notificationService.scheduleRecurringNotification(testConfig);
+    console.log('🧪 Test recurring notification scheduled');
   }
 }
