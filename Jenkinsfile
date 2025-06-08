@@ -1,13 +1,14 @@
 pipeline {
     // Especifica que el pipeline puede ejecutarse en cualquier agente disponible
+    // Para esta configuración, el agente debe tener Node.js y Docker preinstalados.
     agent any
 
     // Definición de variables de entorno para el pipeline
     environment {
         // Reemplaza 'your-docker-registry-credentials-id' con el ID de tus credenciales de Docker en Jenkins
-        DOCKER_REGISTRY_CREDENTIALS_ID = '0a5-7375-4c51-8014-a19b7ac9edcb'
+        DOCKER_REGISTRY_CREDENTIALS_ID = 'your-docker-registry-credentials-id'
         // Reemplaza 'your-dockerhub-username' con tu nombre de usuario de Docker Hub o la URL de tu registro privado
-        DOCKER_REGISTRY = 'jesm1708'
+        DOCKER_REGISTRY = 'your-dockerhub-username'
         IMAGE_NAME      = 'medicationreminder'
     }
 
@@ -17,16 +18,13 @@ pipeline {
             steps {
                 echo 'Obteniendo el código desde el repositorio...'
                 // Reemplaza la URL con la de tu repositorio de Git
-                git 'https://github.com/Sebasl94/G07-IC.git'
+                git 'https://github.com/tu-usuario/tu-repositorio.git'
             }
         }
 
         // Etapa 2: Instalar dependencias del proyecto
+        // Se ejecutará en el agente principal definido arriba.
         stage('Install Dependencies') {
-            agent {
-                // Ejecutar esta etapa dentro de un contenedor Docker con Node.js
-                docker { image 'node:20' }
-            }
             steps {
                 echo 'Instalando dependencias de npm...'
                 sh 'npm install'
@@ -34,10 +32,8 @@ pipeline {
         }
 
         // Etapa 3: Ejecutar linter y pruebas unitarias
+        // Se ejecutará en el agente principal definido arriba.
         stage('Lint & Test') {
-            agent {
-                docker { image 'node:20' }
-            }
             steps {
                 echo 'Ejecutando linter...'
                 sh 'npm run lint'
@@ -49,6 +45,7 @@ pipeline {
         }
 
         // Etapa 4: Construir la imagen de Docker
+        // Esta etapa todavía necesita acceso al demonio de Docker.
         stage('Build Docker Image') {
             steps {
                 echo "Construyendo la imagen Docker: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
@@ -76,23 +73,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Desplegando la aplicación en producción...'
-                // --- INICIO DEL EJEMPLO DE DESPLIEGUE ---
-                // Aquí irían los comandos para desplegar tu aplicación.
-                // Este es un ejemplo común usando SSH para actualizar un contenedor en un servidor remoto.
-                // Necesitarías configurar las credenciales SSH en Jenkins.
-                /*
-                sshagent(['your-ssh-credentials-id']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no user@your-production-server "
-                        docker pull ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} && \\
-                        docker stop ${IMAGE_NAME} || true && \\
-                        docker rm ${IMAGE_NAME} || true && \\
-                        docker run -d --name ${IMAGE_NAME} -p 80:80 --restart always ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
-                        "
-                    '''
-                }
-                */
-                // --- FIN DEL EJEMPLO DE DESPLIEGUE ---
                 sh 'echo "Script de despliegue se ejecutaría aquí."'
             }
         }
