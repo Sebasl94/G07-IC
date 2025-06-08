@@ -5,9 +5,9 @@ pipeline {
     // Definición de variables de entorno para el pipeline
     environment {
         // Reemplaza 'your-docker-registry-credentials-id' con el ID de tus credenciales de Docker en Jenkins
-        DOCKER_REGISTRY_CREDENTIALS_ID = 'your-docker-registry-credentials-id'
+        DOCKER_REGISTRY_CREDENTIALS_ID = '41337b2a-6765-4285-834e-c5852e39e039'
         // Reemplaza 'your-dockerhub-username' con tu nombre de usuario de Docker Hub o la URL de tu registro privado
-        DOCKER_REGISTRY = 'your-dockerhub-username'
+        DOCKER_REGISTRY = 'jesm1708'
         IMAGE_NAME      = 'medicationreminder'
     }
 
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 echo 'Obteniendo el código desde el repositorio...'
                 // Reemplaza la URL con la de tu repositorio de Git
-                git 'https://github.com/tu-usuario/tu-repositorio.git'
+                git 'https://github.com/Sebasl94/G07-IC.git'
             }
         }
 
