@@ -1,33 +1,86 @@
-# Empieza con una imagen oficial de Jenkins que incluya Java (necesario para Jenkins)
-FROM jenkins/jenkins:lts-jdk17
+pipeline {
+    // Especifica que el pipeline puede ejecutarse en cualquier agente disponible.
+    // Para esta configuración, el agente debe tener Node.js, Chrome y Docker preinstalados.
+    agent any
 
-# Cambia al usuario root para poder instalar software
-USER root
+    // Definición de variables de entorno para el pipeline
+    environment {
+        // Reemplaza 'your-docker-registry-credentials-id' con el ID de tus credenciales de Docker en Jenkins
+        DOCKER_REGISTRY_CREDENTIALS_ID = 'b81442a4-d867-4d37-a609-20de5d8f33eb'
+        // Reemplaza 'your-dockerhub-username' con tu nombre de usuario de Docker Hub o la URL de tu registro privado
+        DOCKER_REGISTRY = 'jesm1708'
+        IMAGE_NAME      = 'medicationreminder'
+    }
 
-# --- Instalar Node.js y npm ---
-# Descarga y ejecuta el script de instalación de NodeSource para Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-# Instala Node.js (que incluye npm)
-RUN apt-get update && apt-get install -y nodejs
+    stages {
+        // Etapa 1: Obtener el código fuente
+        stage('Checkout') {
+            steps {
+                echo 'Obteniendo el código desde el repositorio configurado en el job...'
+                // 'checkout scm' clona el repositorio especificado en la configuración del pipeline en Jenkins.
+                checkout scm
+            }
+        }
 
-# --- Instalar Google Chrome para las pruebas de Karma ---
-# Es necesario para 'ng test --browsers=ChromeHeadless'
-RUN apt-get install -y wget
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-# Limpia el archivo descargado para mantener la imagen pequeña
-RUN rm google-chrome-stable_current_amd64.deb
+        // Etapa 2: Instalar dependencias del proyecto
+        stage('Install Dependencies') {
+            steps {
+                echo 'Instalando dependencias de npm...'
+                sh 'npm install'
+            }
+        }
 
-# --- Instalar el cliente de Docker (para construir imágenes) ---
-# Necesario para que Jenkins pueda ejecutar comandos 'docker build', 'docker push', etc.
-RUN apt-get install -y lsb-release
-RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
-  https://download.docker.com/linux/debian/gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) \
-  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
-  https://download.docker.com/linux/debian \
-  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
-RUN apt-get update && apt-get install -y docker-ce-cli
+        // Etapa 3: Ejecutar linter y pruebas unitarias
+        stage('Lint & Test') {
+            steps {
+                echo 'Ejecutando linter...'
+                sh 'npm run lint'
+                
+                echo 'Ejecutando pruebas unitarias...'
+                // Se añaden flags para que 'ng test' se ejecute una sola vez y en modo headless.
+                // El flag --no-sandbox a menudo es necesario para ejecutar Chrome dentro de contenedores.
+                sh 'npm run test -- --watch=false --browsers=ChromeHeadless --no-sandbox'
+            }
+        }
 
-# Vuelve al usuario por defecto de Jenkins
-USER jenkins
+        // Etapa 4: Construir la imagen de Docker
+        stage('Build Docker Image') {
+            steps {
+                echo "Construyendo la imagen Docker: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                // Utiliza el Dockerfile en la raíz del proyecto para construir la imagen de la aplicación.
+                script {
+                    def dockerImage = docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}", "Dockerfile")
+                }
+            }
+        }
+        
+        // Etapa 5: Publicar la imagen de Docker en un registro
+        stage('Push Docker Image') {
+            steps {
+                echo "Publicando la imagen en ${DOCKER_REGISTRY}..."
+                // Inicia sesión en el registro y sube la imagen.
+                script {
+                    docker.withRegistry("https://index.docker.io/v1/", DOCKER_REGISTRY_CREDENTIALS_ID) {
+                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
+                    }
+                }
+            }
+        }
+
+        // Etapa 6: Desplegar la aplicación (ejemplo)
+        stage('Deploy') {
+            steps {
+                echo 'Desplegando la aplicación en producción...'
+                sh 'echo "Script de despliegue se ejecutaría aquí."'
+            }
+        }
+    }
+
+    // Acciones a realizar después de que el pipeline finalice
+    post {
+        always {
+            echo 'Pipeline finalizado. Limpiando el espacio de trabajo...'
+            cleanWs() // Limpia el workspace para la próxima ejecución.
+        }
+    }
+}
