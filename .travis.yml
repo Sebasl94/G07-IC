@@ -1,0 +1,43 @@
+# Indica el lenguaje del proyecto. Para Angular/Ionic, es node_js.
+language: node_js
+
+# Especifica la versión de Node.js a utilizar.
+node_js:
+  - "20"
+
+# Especifica la distribución de Ubuntu para el entorno de compilación. 'jammy' es una versión reciente.
+dist: jammy
+
+# Ionic/Angular necesita un navegador para ejecutar las pruebas.
+# xvfb provee un entorno gráfico virtual para ejecutar Chrome en modo headless.
+services:
+  - xvfb
+
+# Configuración del caché para acelerar las compilaciones.
+# Se guardan las dependencias del proyecto y el caché de npm.
+cache:
+  directories:
+    - "node_modules"
+    - "$HOME/.npm"
+
+# Comandos que se ejecutan antes de la instalación de dependencias.
+before_install:
+  # Instala la CLI de Ionic de forma global.
+  - npm install -g @ionic/cli
+
+# Comando para instalar las dependencias del proyecto.
+install:
+  - npm install
+
+# Comandos para ejecutar el build y las pruebas.
+script:
+  # Ejecuta el linter para verificar la calidad del código.
+  - npm run lint
+  # Ejecuta las pruebas unitarias. '-- --watch=false' asegura que las pruebas se ejecuten una vez y no en modo de observación.
+  - npm run test -- --watch=false --browsers=ChromeHeadless
+  # Construye la aplicación web y sincroniza los assets con Capacitor.
+  - npm run sync
+
+# Opcional: notificaciones sobre el estado de la compilación.
+notifications:
+  email: false 
