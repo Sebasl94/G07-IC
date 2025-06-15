@@ -11,12 +11,14 @@ import {
   IonToolbar,
   IonCardHeader,
   IonButton,
+  IonTitle,
 } from "@ionic/angular/standalone";
 import { dictOfTimes } from "../const/dictOfTimes";
 import { dictOfDays } from "../const/dictOfDays";
 import { DatabaseService } from "../services/database.service";
 import { Reminder } from "../interfaces/reminder";
 import { NotificationService } from "../services/notification/notification.service";
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: "app-home",
@@ -33,6 +35,7 @@ import { NotificationService } from "../services/notification/notification.servi
     IonContent,
     IonHeader,
     IonToolbar,
+    IonTitle,
     IonButton,
   ],
 })
@@ -45,12 +48,13 @@ export class HomePage implements OnInit {
   dictOfDays = dictOfDays;
   myReminders: any[] = [];
   isLoading = true;
+  isWebPlatform = false;
 
   constructor(
     readonly databaseService: DatabaseService,
     private notificationService: NotificationService
   ) {
-    // La inicialización ya se hace en main.ts
+    this.isWebPlatform = Capacitor.getPlatform() === 'web';
   }
 
   async ngOnInit(): Promise<void> {
@@ -172,6 +176,7 @@ export class HomePage implements OnInit {
   async deleteReminder(reminder: Reminder) {
     if (reminder.id) {
       await this.databaseService.deleteReminder(reminder.id);
+      await this.notificationService.removeAllNotifications();
       await this.loadReminders();
     }
   }
@@ -253,5 +258,191 @@ export class HomePage implements OnInit {
 
     await this.notificationService.scheduleRecurringNotification(testConfig);
     console.log('🧪 Test recurring notification scheduled');
+  }
+
+  async checkNotificationStatus() {
+    console.log('🔍 Checking notification status...');
+    const status = await this.notificationService.checkNotificationStatus();
+    console.log('📋 Notification status:', status);
+    
+    if (status) {
+      alert(`Estado de Notificaciones:
+- Permisos: ${status.permissions ? '✅ Concedidos' : '❌ Denegados'}
+- Notificaciones pendientes: ${status.pendingCount}
+- Canales creados: ${status.channelsExist ? '✅ Sí' : '❌ No'}`);
+    } else {
+      alert('❌ Error al verificar el estado de notificaciones');
+    }
+  }
+
+  async requestNotificationPermissions() {
+    console.log('🔐 Requesting notification permissions...');
+    const granted = await this.notificationService.requestPermissions();
+    alert(granted ? '✅ Permisos concedidos' : '❌ Permisos denegados');
+  }
+
+  async testSimpleNotification() {
+    console.log('🧪 Testing simple notification...');
+    const now = new Date();
+    const scheduledAt = new Date(now.getTime() + 5000); // 5 segundos
+    
+    const success = await this.notificationService.scheduleSimpleNotification(
+      '🧪 Prueba Simple',
+      'Esta es una notificación de prueba simplificada',
+      scheduledAt
+    );
+    
+    alert(success ? '✅ Notificación simple programada' : '❌ Error programando notificación simple');
+  }
+
+  async forceRescheduleNotifications() {
+    console.log('🔧 Forcing reschedule of all notifications...');
+    const count = await this.notificationService.forceRescheduleAll();
+    alert(`🔧 Reprogramación forzada completada: ${count} notificaciones reprogramadas`);
+  }
+
+  async testWebCheck() {
+    console.log('🌐 Testing web-specific notification check...');
+    
+    if (!this.isWebPlatform) {
+      alert('❌ Este botón solo funciona en plataforma web');
+      return;
+    }
+    
+    try {
+      await this.notificationService.checkExpiredNotificationsForWeb();
+      alert('✅ Verificación web completada - revisa los logs');
+    } catch (error) {
+      console.error('❌ Error in web check:', error);
+      alert('❌ Error en verificación web');
+    }
+  }
+
+  async runDiagnosis() {
+    console.log('🔍 Running complete notification diagnosis...');
+    
+    try {
+      const result = await this.notificationService.diagnosisNotificationIssues();
+      
+      if (result) {
+        const summary = `🔍 DIAGNÓSTICO COMPLETO:
+📱 Plataforma: ${result.platform}
+🔐 Permisos: ${result.permissions ? 'Concedidos' : 'Denegados'}  
+📢 Canales: ${result.channels}
+⏳ Pendientes: ${result.pending}
+💾 Configuradas: ${result.savedConfigs}
+
+Revisa la consola para más detalles.`;
+        
+        alert(summary);
+      } else {
+        alert('❌ Error en diagnóstico - revisa la consola');
+      }
+    } catch (error) {
+      console.error('❌ Error running diagnosis:', error);
+      alert('❌ Error ejecutando diagnóstico');
+    }
+  }
+
+  async testCompleteNotification() {
+    console.log('🧪 Starting complete notification test...');
+    
+    try {
+      const success = await this.notificationService.testNotificationComplete();
+      
+      if (success) {
+        alert('🧪 Prueba completa iniciada!\n\n⏰ La notificación debería aparecer en 30 segundos.\n\n📋 Revisa la consola para logs detallados.');
+      } else {
+        alert('❌ Error en la prueba completa - revisa la consola');
+      }
+    } catch (error) {
+      console.error('❌ Error in complete test:', error);
+      alert('❌ Error ejecutando prueba completa');
+    }
+  }
+
+  async testDateFormats() {
+    console.log('📅 Testing different date formats...');
+    
+    try {
+      const success = await this.notificationService.testScheduledDateFormats();
+      
+      if (success) {
+        alert('📅 Pruebas de formato iniciadas!\n\n⏰ Las notificaciones deberían aparecer en 1, 2 y 3 minutos.\n\n📋 Revisa la consola para ver qué formato funciona.');
+      } else {
+        alert('❌ Error en las pruebas de formato');
+      }
+    } catch (error) {
+      console.error('❌ Error testing date formats:', error);
+      alert('❌ Error probando formatos de fecha');
+    }
+  }
+
+  async compareCalculations() {
+    console.log('🔍 Comparing calculation methods...');
+    
+    try {
+      const success = await this.notificationService.compareCalculationMethods();
+      
+      if (success) {
+        alert('🔍 Comparación de métodos iniciada!\n\n⏰ Se programaron 3 notificaciones con diferentes métodos de cálculo.\n\nObserva cuáles llegan:\n- Método Actual (calculateNextNotificationDate)\n- Método Simple (suma directa)\n- Método Híbrido\n\n📋 Revisa la consola para logs detallados.');
+      } else {
+        alert('❌ Error en la comparación de métodos');
+      }
+    } catch (error) {
+      console.error('❌ Error comparing calculations:', error);
+      alert('❌ Error comparando métodos de cálculo');
+    }
+  }
+
+  async diagnoseMobile() {
+    console.log('📱 Running mobile-specific diagnosis...');
+    
+    try {
+      const success = await this.notificationService.diagnoseMobileNotificationIssues();
+      
+      if (success) {
+        alert('📱 Diagnóstico móvil iniciado!\n\n🔍 Se ejecutaron pruebas específicas para móvil:\n- Notificación inmediata\n- Notificación programada (30 seg)\n- Verificación de canales\n- Verificación de permisos\n\n📋 Revisa la consola para logs detallados y observa si llegan las notificaciones de prueba.');
+      } else {
+        alert('❌ Error en diagnóstico móvil o no estás en móvil');
+      }
+    } catch (error) {
+      console.error('❌ Error in mobile diagnosis:', error);
+      alert('❌ Error ejecutando diagnóstico móvil');
+    }
+  }
+
+  async requestAndroidPermissions() {
+    console.log('📱 Requesting Android-specific permissions...');
+    
+    try {
+      const granted = await this.notificationService.requestAndroidPermissions();
+      
+      if (granted) {
+        alert('✅ Permisos de Android concedidos!\n\n💡 Consejos adicionales:\n- Desactiva la optimización de batería para esta app\n- Permite actividad en segundo plano\n- Habilita "Mostrar en pantalla de bloqueo"');
+      } else {
+        alert('❌ Permisos de Android denegados\n\n💡 Ve a Configuración > Apps > [Esta App] > Notificaciones y habilítalas manualmente');
+      }
+    } catch (error) {
+      console.error('❌ Error requesting Android permissions:', error);
+      alert('❌ Error solicitando permisos de Android');
+    }
+  }
+
+  async testVisibleNotification() {
+    console.log('👁️ Testing visible notification...');
+    
+    try {
+      const success = await this.notificationService.testVisibleNotification();
+      
+      if (success) {
+        alert('👁️ Prueba de notificación visible iniciada!\n\n⏰ La notificación debería aparecer en 10 segundos.\n\n🔍 Esta prueba verifica si las notificaciones se muestran correctamente en tu dispositivo.\n\n📋 Observa si aparece la notificación y revisa los logs.');
+      } else {
+        alert('❌ Error en la prueba de notificación visible');
+      }
+    } catch (error) {
+      console.error('❌ Error testing visible notification:', error);
+      alert('❌ Error probando notificación visible');
+    }
   }
 }

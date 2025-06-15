@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
   },
   plugins: {
+    LocalNotifications: {
+      iconColor: "#488AFF",
+      
+      sound: "default",
+    },
     CapacitorSQLite: {
       iosDatabaseLocation: 'Library/CapacitorDatabase',
       iosIsEncryption: false,

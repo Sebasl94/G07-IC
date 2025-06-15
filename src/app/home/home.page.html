@@ -1,13 +1,8 @@
 <ion-content>
   <ion-header>
-   
-      <h2>Mis recordatorios</h2>
-      <ion-button slot="end" (click)="testNotification()"
-        >Test Notif</ion-button
-      >
-      <ion-button slot="end" (click)="checkExpiredNotifications()">Check Expired</ion-button>
-      <ion-button slot="end" (click)="testRecurringNotification()">Test Recurring</ion-button>
- 
+    <ion-toolbar>
+      <ion-title>Mis recordatorios</ion-title>
+    </ion-toolbar>
   </ion-header>
   @if(myReminders.length === 0){
   <ng-container>
@@ -103,4 +98,58 @@
     </div>
   </ion-card>
   }
+
+  <!-- Botones de diagnóstico de notificaciones (solo para desarrollo) -->
+  <div style="padding: 20px; margin-top: 20px; border-top: 1px solid #ddd;">
+    <h5>🔧 Diagnóstico de Notificaciones</h5>
+    <ion-button expand="block" color="primary" (click)="checkNotificationStatus()">
+      Verificar Estado de Notificaciones
+    </ion-button>
+    <ion-button expand="block" color="success" (click)="testSimpleNotification()">
+      🧪 Probar Notificación Simple (5 seg)
+    </ion-button>
+    <ion-button expand="block" color="secondary" (click)="testNotification()">
+      Probar Notificación (5 segundos)
+    </ion-button>
+    <ion-button expand="block" color="tertiary" (click)="testRecurringNotification()">
+      Probar Notificación Recurrente
+    </ion-button>
+    <ion-button expand="block" color="warning" (click)="requestNotificationPermissions()">
+      Solicitar Permisos de Notificación
+    </ion-button>
+    @if(isWebPlatform) {
+    <ion-button expand="block" color="secondary" (click)="requestAndroidPermissions()">
+      📱 Solicitar Permisos Android
+    </ion-button>
+    }
+
+    <ion-button expand="block" color="danger" (click)="forceRescheduleNotifications()">
+      🔧 Forzar Reprogramación de Todas
+    </ion-button>
+    @if(isWebPlatform) {
+    <ion-button expand="block" color="medium" (click)="testWebCheck()">
+      🌐 Verificar Web (Timestamp)
+    </ion-button>
+    }
+    <ion-button expand="block" color="light" (click)="runDiagnosis()">
+      🔍 Diagnóstico Completo
+    </ion-button>
+    <ion-button expand="block" color="success" (click)="testCompleteNotification()">
+      🧪 Prueba Completa (30 seg)
+    </ion-button>
+    <ion-button expand="block" color="primary" (click)="testVisibleNotification()">
+      👁️ Probar Notificación Visible (10 seg)
+    </ion-button>
+    <ion-button expand="block" color="tertiary" (click)="testDateFormats()">
+      📅 Probar Formatos de Fecha
+    </ion-button>
+    <ion-button expand="block" color="warning" (click)="compareCalculations()">
+      🔍 Comparar Métodos de Cálculo
+    </ion-button>
+    @if(isWebPlatform) {
+    <ion-button expand="block" color="danger" (click)="diagnoseMobile()">
+      📱 Diagnóstico Móvil
+    </ion-button>
+    }
+  </div>
 </ion-content>

@@ -48,7 +48,10 @@ export class AppComponent implements OnInit {
         // La app continúa funcionando gracias al fallback del servicio
       }
 
-      // Verificar y reprogramar notificaciones vencidas
+      // Limpiar todas las notificaciones al iniciar la app
+      //await this.notificationService.removeAllNotifications();
+      
+      // Verificar y reprogramar notificaciones vencidas después de limpiar
       setTimeout(async () => {
         try {
           await this.notificationService.checkAndRescheduleExpiredNotifications();
@@ -61,7 +64,6 @@ export class AppComponent implements OnInit {
       // Log del estado final
       const dbStatus = this.databaseService.isDatabaseReady();
       console.log('Final database status:', JSON.stringify(dbStatus));
-      await this.notificationService.removeAllNotifications();
     } catch (error) {
       console.error('App initialization error:', error);
       // La app debe continuar funcionando incluso si hay errores

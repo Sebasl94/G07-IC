@@ -252,13 +252,19 @@ export class AddNotificationComponent implements OnInit {
 
         console.log("🔔 Scheduling notification with config:", scheduleConfig);
 
-        await this.notificationService.scheduleRecurringNotification({
+        const success = await this.notificationService.scheduleSimpleRecurringNotification({
             id: reminderId,
             title: `Recordatorio: ${newNotification.name}`,
-            body: `Es hora de tomar tu ${quantityText}. ${newNotification.description || ''}`,
+            body: `Es hora de tomar ${newNotification.quantity}/${JSON.parse(newNotification.measure).symbol} de ${newNotification.name}`,
             scheduleConfig: scheduleConfig,
             reminderBy: newNotification.reminderBy,
         });
+
+        if (success) {
+          console.log('🎉 Notification scheduled successfully with SIMPLE method!');
+        } else {
+          console.error('❌ Failed to schedule notification with SIMPLE method');
+        }
       }
 
       this.showToastMessage("¡Recordatorio agregado exitosamente!", "success");
